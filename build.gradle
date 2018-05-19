@@ -1,0 +1,72 @@
+buildscript {
+    ext {
+        springBootVersion = '1.5.9.RELEASE'
+    }
+    repositories {
+        mavenLocal()
+        jcenter()
+        maven {
+            url "http://maven.aliyun.com/nexus/content/groups/public/"
+        }
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+//        classpath 'com.h2database:h2:1.4.196'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+    jcenter()
+    maven {
+        url "http://maven.aliyun.com/nexus/content/groups/public/"
+    }
+    mavenCentral()
+
+}
+
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter-aop')
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    compile('org.springframework.boot:spring-boot-starter-thymeleaf')
+    compile('org.springframework.boot:spring-boot-starter-jetty')// use jetty to replace tomcat
+    compile('org.springframework.boot:spring-boot-starter-web') {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
+    }
+    compile('org.projectlombok:lombok')
+    compile 'org.webjars.bower:bootstrap:3.3.7' //bootstrap
+    compile 'org.webjars.bower:jquery:3.2.1' // jquery
+    compile group: 'org.webjars', name: 'webjars-locator', version: '0.32' // 省略版本号获取静态资源
+    runtime('org.springframework.boot:spring-boot-devtools')  // 热部署
+    compile('com.h2database:h2:1.4.196')
+    compile group: 'net.sourceforge.nekohtml', name: 'nekohtml', version: '1.9.13'
+    compile group: 'com.google.guava', name: 'guava', version: '25.0-jre'
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+
+
+task startServer(type: JavaExec) {
+    main('org.h2.tools.Server')
+    args("-tcp", "-tcpAllowOthers", "-tcpPort", "8043", "-web", "-browser")
+    classpath sourceSets.main.runtimeClasspath
+    classpath configurations.runtime
+}
+//
+task stopServer(type: JavaExec, dependsOn: classes) {
+    main('org.h2.tools.Server')
+    args("-tcpShutdown", "tcp://localhost:8043")
+    classpath sourceSets.main.runtimeClasspath
+    classpath configurations.runtime
+}
+
+
